@@ -17,6 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("font-sans", inter.variable)}>
+      <head>
+        <meta name="apple-mobile-web-app-title" content="FEA" />
+      </head>
       <body
         className="antialiased"
       >
