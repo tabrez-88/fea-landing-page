@@ -1,84 +1,94 @@
+"use client";
+
 import AudienceFEA from '@/public/assets/audience-fea.png'
 import { CircleCheck } from 'lucide-react'
 import Image from 'next/image'
+import { motion } from 'motion/react'
 
 export default function WhoIsFEA() {
   return (
-    < section className="w-full px-6 py-20 md:px-19.5 lg:px-37.5 transition-all duration-300" >
+    <section className="w-full px-6 py-4 md:py-20 md:px-19.5 lg:px-37.5 transition-all duration-300" >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
-        <div className="relative w-full h-103">
+        <motion.div
+          className="relative w-full h-103 order-2 md:order-1"
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.7 }}
+          transition={{ duration: 0.6 }}
+        >
           <Image
             src={AudienceFEA}
             alt="FEA Audience Illustration"
             fill
             className="object-contain"
           />
-        </div>
-        <div className="flex flex-col gap-11">
-          <div className="flex flex-col gap-4">
+        </motion.div>
+        <div className="flex flex-col gap-11 order-1 md:order-2">
+          <motion.div
+            className="flex flex-col gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.7 }}
+            transition={{ duration: 0.5 }}
+          >
             <span className="text-xl font-bold tracking-[0.2em] uppercase">
               Audience
             </span>
             <h2 className="text-3xl md:text-[40px] font-light">
               Who Is <span className="font-bold">FEA</span> For?
             </h2>
-          </div>
+          </motion.div>
           <div className="space-y-6">
-            <div className="flex gap-2 w-full">
-              <CircleCheck fill='black' color='white' className='size-5' size={20} />
-              <div>
-                <h3 className="font-bold text-sm">Creators & Studios</h3>
+            <motion.div
+              className="flex gap-2 w-full"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <CircleCheck fill='black' color='white' className='size-6' size={20} />
+              <div className='flex flex-col w-full'>
+                <h3 className="font-bold text-xl">Creators & Studios</h3>
                 <p className="text-[#808080]">
                   Bring structured entertainment projects to a curated
                   marketplace designed for long-term value.
                 </p>
               </div>
-            </div>
-
-            <div className="flex gap-3">
-              <svg
-                className="w-5 h-5 mt-0.5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div>
-                <h3 className="font-bold text-sm">Supporters</h3>
-                <p className="mt-1 text-sm opacity-70">
+            </motion.div>
+            <motion.div
+              className="flex gap-3"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <CircleCheck fill='black' color='white' className='size-6' size={20} />
+              <div className='flex flex-col w-full'>
+                <h3 className="font-bold text-xl">Supporters</h3>
+                <p className="text-[#808080]">
                   Access exclusive releases, premiere invitations, and
                   priority participation opportunities.
                 </p>
               </div>
-            </div>
-
-            {/* Verified Participants */}
-            <div className="flex gap-3">
-              <svg
-                className="w-5 h-5 mt-0.5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div>
-                <h3 className="font-bold text-sm">
+            </motion.div>
+            <motion.div
+              className="flex gap-3"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <CircleCheck fill='black' color='white' className='size-6' size={20} />
+              <div className='flex flex-col w-full'>
+                <h3 className="font-bold text-xl">
                   Verified Participants
                 </h3>
-                <p className="mt-1 text-sm opacity-70">
+                <p className="text-[#808080]">
                   Explore structured participation opportunities aligned
                   with project performance.
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
