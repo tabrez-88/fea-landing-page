@@ -18,7 +18,7 @@ export default function FormRadioGroup<T extends FieldValues>({
 }: FormRadioGroupProps<T>) {
   return (
     <div>
-      <h3 className="text-sm font-bold mb-3">{label}</h3>
+      <h3 className="font-bold mb-3">{label}</h3>
       <Controller
         control={control}
         name={name}
@@ -31,7 +31,7 @@ export default function FormRadioGroup<T extends FieldValues>({
             {options.map((option) => (
               <label
                 key={option}
-                className="flex items-center gap-2.5 cursor-pointer text-sm"
+                className="flex items-center gap-1 cursor-pointer text-[#808080]"
               >
                 <RadioGroupItem value={option} />
                 {option}

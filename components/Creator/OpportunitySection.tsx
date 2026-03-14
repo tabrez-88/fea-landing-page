@@ -17,11 +17,11 @@ export default function OpportunitySection({
   errors,
 }: OpportunitySectionProps) {
   return (
-    <div className="border rounded-lg p-6 md:p-8">
-      <h2 className="text-lg font-bold">Tell Us About Your Opportunity</h2>
+    <div className="border rounded-lg p-6">
+      <h2 className="text-xl font-bold">Tell Us About Your Opportunity</h2>
       <Separator className="mt-4 mb-6" />
 
-      <div className="space-y-5">
+      <div className="space-y-4">
         <FormInput
           label="Project Title"
           id="projectTitle"
