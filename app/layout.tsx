@@ -31,12 +31,12 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "FEA — Funkyland Entertainment Asset",
-    title: "FEA — Funkyland Entertainment Asset | Launching Soon",
+    title: "FEA | Launching Soon",
     description:
       "A curated platform for entertainment projects built for longevity and success. Supporting creators in films, music, games, and live events.",
     images: [
       {
-        url: "/assets/fea-light.png",
+        url: "/assets/fea-dark.png",
         width: 1200,
         height: 630,
         alt: "FEA — Funkyland Entertainment Asset",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     title: "FEA — Funkyland Entertainment Asset | Launching Soon",
     description:
       "A curated platform for entertainment projects built for longevity and success.",
-    images: ["/assets/fea-light.png"],
+    images: ["/assets/fea-dark.png"],
   },
   robots: {
     index: true,
