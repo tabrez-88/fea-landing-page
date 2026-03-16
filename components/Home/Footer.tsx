@@ -37,12 +37,21 @@ export default function Footer() {
       >
         <div className="flex flex-col w-full gap-2 lg:text-nowrap leading-tight">
           <p>FEA is a technology platform supporting entertainment projects.</p>
-          <p>Certain opportunities may be available only to qualified individuals.</p>
-          <p>Nothing on this website constitutes an offer to sell or a solicitation of securities.</p>
+          <p>
+            Certain opportunities may be available only to qualified
+            individuals.
+          </p>
+          <p>
+            Nothing on this website constitutes an offer to sell or a
+            solicitation of securities.
+          </p>
         </div>
         <div className="flex flex-col w-full gap-2 text-right lg:text-nowrap leading-tight">
           <p>
-            General Inquiries: <span className="font-bold text-[#1A1A1A]">contact@funkyland.io</span>
+            General Inquiries:{" "}
+            <span className="font-bold text-[#1A1A1A]">
+              tracereport@kssgroup.id
+            </span>
           </p>
           <p>
             &copy; 2026 FEA Funkyland Entertainment Asset. All rights reserved.
