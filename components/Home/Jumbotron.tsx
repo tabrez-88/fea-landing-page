@@ -8,7 +8,10 @@ import { motion } from "motion/react";
 
 export default function Jumbotron() {
   return (
-    <section aria-label="Hero" className="relative w-full flex flex-col items-start overflow-hidden px-6 py-20 md:px-19.5 lg:px-37.5 lg:py-26.75 transition-all duration-300" >
+    <section
+      aria-label="Hero"
+      className="relative w-full flex flex-col items-start overflow-hidden px-6 py-20 md:px-19.5 lg:px-37.5 lg:py-26.75 transition-all duration-300"
+    >
       <motion.div
         className="p-6 z-20 absolute top-0 left-0"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -53,7 +56,6 @@ export default function Jumbotron() {
           transition={{ duration: 0.6, delay: 0.7 }}
         >
           <div className="flex flex-wrap gap-3 mt-6">
-
             <span className="border text-white font-bold px-3 py-2 rounded-[40px]">
               Films & TV
             </span>
@@ -65,6 +67,9 @@ export default function Jumbotron() {
             </span>
             <span className="border text-white font-bold px-3 py-2 rounded-[40px]">
               Live Events
+            </span>
+            <span className="border text-white font-bold px-3 py-2 rounded-[40px]">
+              Creator Projects
             </span>
           </div>
           <h2 className="text-4xl bg-linear-to-r from-white to-45% to-white/16 inline-block text-transparent bg-clip-text">
@@ -80,7 +85,9 @@ export default function Jumbotron() {
           transition={{ duration: 0.6, delay: 0.9 }}
         >
           <p className="text-[#989898] leading-relaxed">
-            <span className="font-bold text-white">Funkyland Entertainment Asset</span>{" "}
+            <span className="font-bold text-white">
+              Funkyland Entertainment Asset
+            </span>{" "}
             A Curated Platform for entertainment projects built for longevity
             and success.
           </p>
@@ -99,6 +106,6 @@ export default function Jumbotron() {
         className="object-cover"
         priority
       />
-    </section >
-  )
+    </section>
+  );
 }
