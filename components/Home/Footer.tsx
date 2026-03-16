@@ -50,7 +50,7 @@ export default function Footer() {
           <p>
             General Inquiries:{" "}
             <span className="font-bold text-[#1A1A1A]">
-              tracereport@kssgroup.id
+              contact@funkyland.io
             </span>
           </p>
           <p>
