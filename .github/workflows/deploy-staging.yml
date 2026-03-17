@@ -1,0 +1,70 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    name: Deploy to Staging VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: |
+            set -e
+
+            echo "=== Starting STAGING deployment ==="
+            cd /var/www/fea-staging
+
+            # Save current commit hash for rollback
+            PREV_COMMIT=$(git rev-parse HEAD)
+            echo "Previous commit: $PREV_COMMIT"
+
+            # Pull latest code
+            echo "=== Pulling latest code ==="
+            git fetch origin staging
+            git reset --hard origin/staging
+
+            # Install dependencies
+            echo "=== Installing dependencies ==="
+            npm ci
+
+            # Build the application
+            echo "=== Building Next.js ==="
+            export NODE_OPTIONS="--max-old-space-size=1024"
+            npm run build
+
+            # Zero-downtime reload with PM2
+            echo "=== Reloading application (zero-downtime) ==="
+            pm2 reload fea-staging --update-env
+
+            # Wait for app to be ready
+            sleep 3
+
+            # Health check
+            echo "=== Health check ==="
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000)
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "Deployment successful! (HTTP $HTTP_STATUS)"
+              pm2 save
+            else
+              echo "Health check failed! (HTTP $HTTP_STATUS)"
+              echo "Rolling back to $PREV_COMMIT"
+              git reset --hard $PREV_COMMIT
+              npm ci
+              npm run build
+              pm2 reload fea-staging --update-env
+              exit 1
+            fi
+
+            echo "=== STAGING deployment complete ==="

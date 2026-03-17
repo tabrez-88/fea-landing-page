@@ -30,7 +30,7 @@ export default function SuccessDialog({ open }: SuccessDialogProps) {
           <DialogDescription className="text-base text-[#808080]">
             FEA is currently connecting with a select group of creators and
             partners ahead of launch. If there is alignment, a member of our
-            team will be in touch. We appreciate your interest in helping shape
+            team will reach out. We appreciate your interest in helping shape
             the future of entertainment assets.
           </DialogDescription>
         </DialogHeader>

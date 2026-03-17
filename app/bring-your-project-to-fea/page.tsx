@@ -21,7 +21,7 @@ export default function BringYourProjectToFEA() {
           For Creator
         </span>
         <h1 className="text-3xl md:text-4xl lg:text-[40px] font-light">
-          Bring your project to <span className="font-bold">FEA</span>
+          Bring Your Project to <span className="font-bold">FEA</span>
         </h1>
       </section>
       <section className="flex flex-col gap-6 w-full px-4 md:px-16 lg:px-37.5 py-12">
@@ -36,7 +36,7 @@ export default function BringYourProjectToFEA() {
           </p>
         </div>
         <p className="text-[#808080]">
-          Select opportunities may be reviewed ahead of launch.
+          Selected opportunities may be reviewed ahead of launch.
         </p>
 
         <form id="creator-form" onSubmit={handleSubmit} className="space-y-8">

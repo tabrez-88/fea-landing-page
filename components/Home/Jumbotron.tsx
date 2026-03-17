@@ -8,7 +8,10 @@ import { motion } from "motion/react";
 
 export default function Jumbotron() {
   return (
-    <section className="relative w-full flex flex-col items-start overflow-hidden px-6 py-20 md:px-19.5 lg:px-37.5 lg:py-26.75 transition-all duration-300" >
+    <section
+      aria-label="Hero"
+      className="relative w-full flex flex-col items-start overflow-hidden px-6 py-20 md:px-19.5 lg:px-37.5 lg:py-26.75 transition-all duration-300"
+    >
       <motion.div
         className="p-6 z-20 absolute top-0 left-0"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -28,23 +31,23 @@ export default function Jumbotron() {
             FEA
           </h1>
           <Separator orientation="vertical" className="bg-white/30" />
-          <div className="flex flex-col justify-center h-full text-white text-2xl md:text-4xl lg:text-5xl font-light leading-tight">
-            <p>is</p>
-            <p className="bg-linear-to-r font-bold from-white to-white/16 inline-block text-transparent bg-clip-text">
+          <p className="flex flex-col justify-center h-full text-white text-2xl md:text-4xl lg:text-5xl font-light leading-tight">
+            <span>is</span>
+            <span className="bg-linear-to-r font-bold from-white to-white/16 inline-block text-transparent bg-clip-text">
               launching soon
-            </p>
-          </div>
+            </span>
+          </p>
         </motion.div>
         <motion.div
-          className="flex items-center mt-2 max-w-md relative"
+          className="flex items-center mt-2 max-w-2xl relative"
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           style={{ originX: 0 }}
         >
-          <div className="size-73.75 rounded-full bg-radial from-white to-35% to-white/16 absolute -left-[32%] blur-2xl" />
+          <div className="size-73.75 rounded-full bg-radial from-white to-35% to-white/16 absolute -left-[20%] blur-2xl" />
           <div className="z-10 w-3 h-3 rounded-full bg-white" />
-          <div className="z-10 flex-1 h-0.5 bg-white" />
+          <div className="z-10 flex-1 h-0.5 bg-linear-to-r from-white to-white/16" />
         </motion.div>
         <motion.div
           className="flex z-10 flex-col gap-4"
@@ -53,7 +56,6 @@ export default function Jumbotron() {
           transition={{ duration: 0.6, delay: 0.7 }}
         >
           <div className="flex flex-wrap gap-3 mt-6">
-
             <span className="border text-white font-bold px-3 py-2 rounded-[40px]">
               Films & TV
             </span>
@@ -66,15 +68,14 @@ export default function Jumbotron() {
             <span className="border text-white font-bold px-3 py-2 rounded-[40px]">
               Live Events
             </span>
+            <span className="border text-white font-bold px-3 py-2 rounded-[40px]">
+              Creator Projects
+            </span>
           </div>
-          <div className=" text-4xl bg-linear-to-r from-white to-45% to-white/16 inline-block text-transparent bg-clip-text">
-            <p>
-              Start with community support.
-            </p>
-            <p>
-              Scale with structured participation.
-            </p>
-          </div>
+          <h2 className="text-4xl bg-linear-to-r from-white to-45% to-white/16 inline-block text-transparent bg-clip-text">
+            <span className="block">Start with community support.</span>
+            <span className="block">Scale with structured participation.</span>
+          </h2>
         </motion.div>
 
         <motion.div
@@ -84,7 +85,9 @@ export default function Jumbotron() {
           transition={{ duration: 0.6, delay: 0.9 }}
         >
           <p className="text-[#989898] leading-relaxed">
-            <span className="font-bold text-white">Funkyland Entertainment Asset</span>{" "}
+            <span className="font-bold text-white">
+              Funkyland Entertainment Asset
+            </span>{" "}
             A Curated Platform for entertainment projects built for longevity
             and success.
           </p>
@@ -97,11 +100,12 @@ export default function Jumbotron() {
       </div>
       <Image
         src={bgJumbotron}
-        alt=""
+        alt="FEA hero background"
+        role="presentation"
         fill
         className="object-cover"
         priority
       />
-    </section >
-  )
+    </section>
+  );
 }
