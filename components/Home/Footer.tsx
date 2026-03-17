@@ -49,12 +49,16 @@ export default function Footer() {
         <div className="flex flex-col w-full gap-2 text-right lg:text-nowrap leading-tight">
           <p>
             General Inquiries:{" "}
-            <span className="font-bold text-[#1A1A1A]">
-              tracereport@kssgroup.id
-            </span>
+            <a
+              href="mailto:contact@funkyland.io?subject=FEA%20Inquiry"
+              className="font-bold text-[#1A1A1A] hover:underline"
+            >
+              contact@funkyland.io
+            </a>
           </p>
           <p>
-            &copy; 2026 FEA Funkyland Entertainment Asset. All rights reserved.
+            &copy; 2026 FEA - Funkyland Entertainment Asset. All rights
+            reserved.
           </p>
         </div>
       </motion.div>
