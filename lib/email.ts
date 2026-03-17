@@ -18,11 +18,11 @@ function getTransporter() {
 }
 
 function getNotificationEmail() {
-  return process.env.NOTIFICATION_EMAIL || "tracereport@kssgroup.id";
+  return process.env.NOTIFICATION_EMAIL || "contact@funkyland.io";
 }
 
 function getSenderEmail() {
-  return process.env.SENDER_EMAIL || "tracereport@kssgroup.id";
+  return process.env.SENDER_EMAIL || "noreply@funkyland.io";
 }
 
 // ── Creator Submission Notification ─────────────────────────────────

@@ -41,7 +41,7 @@ export default function CreatorAndPartners() {
               href="/bring-your-project-to-fea"
               className="inline-flex items-center justify-center px-6 py-3 border border-white text-white text-sm font-medium rounded-lg w-fit hover:bg-white/10 transition-colors"
             >
-              Start The conversation
+              Start The Conversation
             </Link>
           </motion.div>
 
