@@ -11,12 +11,12 @@ Complete guide to deploy the FEA landing page on Vultr VPS with zero-downtime CI
 3. [Server Setup from Scratch](#3-server-setup-from-scratch)
 4. [Application First Deploy (Staging)](#4-application-first-deploy-staging)
 5. [Create Staging Branch](#5-create-staging-branch)
-6. [GitHub Actions CI/CD Setup](#6-github-actions-cicd-setup)
+6. [GitHub Actions CI/CD Setup (Staging)](#6-github-actions-cicd-setup-staging)
 7. [GitHub Secrets Configuration](#7-github-secrets-configuration)
 8. [How Zero-Downtime Deployment Works](#8-how-zero-downtime-deployment-works)
 9. [Post-Deploy Verification](#9-post-deploy-verification)
 10. [Rollback Procedure](#10-rollback-procedure)
-11. [Future: Adding Production](#11-future-adding-production)
+11. [Production Deployment (Step-by-Step)](#11-production-deployment-step-by-step)
 12. [Troubleshooting](#12-troubleshooting)
 
 ---
@@ -25,9 +25,9 @@ Complete guide to deploy the FEA landing page on Vultr VPS with zero-downtime CI
 
 ### Environment Separation
 
-Both staging and production (future) run on the **same VPS**, separated by folder, port, PM2 process, and domain.
+Both staging and production run on the **same VPS**, separated by folder, port, PM2 process, and domain.
 
-| Component       | Staging                  | Production (future)         |
+| Component       | Staging                  | Production                  |
 | --------------- | ------------------------ | --------------------------- |
 | Branch          | `staging`                | `main`                      |
 | Server folder   | `/var/www/fea-staging`   | `/var/www/fea-production`   |
@@ -340,7 +340,7 @@ git push -u origin staging
 
 ---
 
-## 6. GitHub Actions CI/CD Setup
+## 6. GitHub Actions CI/CD Setup (Staging)
 
 ### 6.1 Workflow file
 
@@ -350,9 +350,11 @@ It triggers on every push to the `staging` branch and:
 
 1. SSHs into the VPS
 2. Pulls latest code into `/var/www/fea-staging`
-3. Runs `npm ci` and `npm run build`
+3. Runs `npm ci` and `npm run build` (with `NODE_OPTIONS` for memory)
 4. Runs `pm2 reload fea-staging` (zero-downtime)
 5. Health checks port 3000 — auto-rollback on failure
+
+> For production CI/CD, see [Section 11.10](#1110-cicd-for-production).
 
 ---
 
@@ -459,11 +461,41 @@ The CI/CD workflow also has **automatic rollback** — if the health check fails
 
 ---
 
-## 11. Future: Adding Production
+## 11. Production Deployment (Step-by-Step)
 
-When you're ready to add production on the same VPS, here's what you'll do:
+This section mirrors the staging setup. Follow each step in order.
 
-### 11.1 Clone a second copy
+### Prerequisites
+
+Before starting, make sure you have:
+
+- Staging already deployed and working (Sections 1–10)
+- Domain `funkyland.io` with DNS access
+- Mailtrap account with Sending (production) enabled
+- A separate Google Sheet for production (named `FEA Submissions`)
+
+---
+
+### 11.1 Point domain to VPS
+
+In your DNS provider, add these **A records**:
+
+| Type | Name | Value | TTL |
+|------|------|-------|-----|
+| A | `@` | `149.248.18.251` | Auto |
+| A | `www` | `149.248.18.251` | Auto |
+
+> DNS propagation can take 5–30 minutes. Check with: `ping funkyland.io`
+
+---
+
+### 11.2 Clone production copy on the server
+
+SSH into the server and run:
+
+```bash
+ssh root@149.248.18.251
+```
 
 ```bash
 cd /var/www
@@ -472,52 +504,117 @@ cd fea-production
 git checkout main
 ```
 
-### 11.2 Create production `.env.local`
+---
+
+### 11.3 Create production `.env.local`
 
 ```bash
 nano /var/www/fea-production/.env.local
-# Use REAL credentials here (not sandbox)
 ```
 
-### 11.3 Create `ecosystem.production.config.js` in the repo
+Paste with **production credentials** (NOT sandbox):
 
-```js
-module.exports = {
-  apps: [
-    {
-      name: "fea-production",
-      cwd: "/var/www/fea-production",
-      script: "node_modules/.bin/next",
-      args: "start",
-      env: {
-        NODE_ENV: "production",
-        PORT: 3001,                   // Different port from staging
-      },
-      instances: 2,
-      exec_mode: "cluster",
-      max_memory_restart: "512M",
-      log_date_format: "YYYY-MM-DD HH:mm:ss",
-      error_file: "/var/log/pm2/fea-production-error.log",
-      out_file: "/var/log/pm2/fea-production-out.log",
-      merge_logs: true,
-    },
-  ],
-};
+```env
+# ─── Google Sheets API ───────────────────────────────────────────────
+# Use the PRODUCTION sheet (named "FEA Submissions", NOT the [STAGING] one)
+GOOGLE_SHEETS_SPREADSHEET_ID=your_PRODUCTION_spreadsheet_id
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# ─── Mailtrap SENDING (Production) ──────────────────────────────────
+# These are DIFFERENT from sandbox. See Section 11.8 for how to get them.
+MAILTRAP_HOST=live.smtp.mailtrap.io
+MAILTRAP_PORT=587
+MAILTRAP_USER=api
+MAILTRAP_PASS=your_mailtrap_api_token
+
+# ─── Email Configuration ────────────────────────────────────────────
+NOTIFICATION_EMAIL=contact@funkyland.io
+SENDER_EMAIL=noreply@funkyland.io
 ```
 
-### 11.4 Add Nginx config for production domain
+> **Key differences from staging:**
+> - `GOOGLE_SHEETS_SPREADSHEET_ID` → production sheet ID
+> - `MAILTRAP_HOST` → `live.smtp.mailtrap.io` (not sandbox)
+> - `MAILTRAP_PORT` → `587` (not 2525)
+> - `MAILTRAP_USER` → `api` (not sandbox username)
+> - `MAILTRAP_PASS` → API token (not sandbox password)
+
+---
+
+### 11.4 Install dependencies and build
+
+```bash
+cd /var/www/fea-production
+npm ci
+export NODE_OPTIONS="--max-old-space-size=1024"
+npm run build
+```
+
+---
+
+### 11.5 Start with PM2
+
+```bash
+pm2 start ecosystem.production.config.js
+pm2 save
+```
+
+Verify:
+
+```bash
+pm2 status
+```
+
+You should see 4 processes total:
+
+```
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ port     │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┤
+│ 0  │ fea-staging        │ cluster  │      │ online    │ 3000     │
+│ 1  │ fea-staging        │ cluster  │      │ online    │ 3000     │
+│ 2  │ fea-production     │ cluster  │      │ online    │ 3001     │
+│ 3  │ fea-production     │ cluster  │      │ online    │ 3001     │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┘
+```
+
+Quick health check:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3001
+# Should return 200
+```
+
+---
+
+### 11.6 Configure Nginx for production domain
+
+Create the production site config:
 
 ```bash
 nano /etc/nginx/sites-available/fea-production
 ```
+
+Paste:
 
 ```nginx
 server {
     listen 80;
     server_name funkyland.io www.funkyland.io;
 
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript image/svg+xml;
+    gzip_min_length 256;
+
     location / {
-        proxy_pass http://127.0.0.1:3001;    # Port 3001
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -528,44 +625,198 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 
+    # Cache static assets
     location /_next/static/ {
         proxy_pass http://127.0.0.1:3001;
         expires 365d;
         add_header Cache-Control "public, immutable";
     }
+
+    location /public/ {
+        proxy_pass http://127.0.0.1:3001;
+        expires 30d;
+        add_header Cache-Control "public";
+    }
 }
 ```
 
+Enable the site:
+
 ```bash
 ln -sf /etc/nginx/sites-available/fea-production /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
+nginx -t
+systemctl reload nginx
 ```
 
-### 11.5 Add SSL with Let's Encrypt
+Verify: Open `http://funkyland.io` in your browser — your production site should be live!
+
+---
+
+### 11.7 Add SSL with Let's Encrypt
 
 ```bash
 apt install certbot python3-certbot-nginx -y
 certbot --nginx -d funkyland.io -d www.funkyland.io
 ```
 
-### 11.6 Add production workflow
+Certbot will:
+1. Ask for your email (for renewal reminders)
+2. Ask to agree to terms → Yes
+3. Ask to redirect HTTP to HTTPS → **Yes (recommended)**
+4. Automatically configure Nginx with SSL
 
-Create `.github/workflows/deploy-production.yml` that triggers on push to `main` and deploys to `/var/www/fea-production` with `pm2 reload fea-production`.
+Verify: Open `https://funkyland.io` — you should see the padlock icon.
+
+SSL auto-renews. To test renewal:
+
+```bash
+certbot renew --dry-run
+```
+
+---
+
+### 11.8 Mailtrap Production Setup (Sending)
+
+Mailtrap Sending is separate from Sandbox. This makes emails **actually deliver** to `contact@funkyland.io`.
+
+#### Step 1: Enable Sending in Mailtrap
+
+1. Log into [mailtrap.io](https://mailtrap.io)
+2. In the left sidebar, switch to **Sending** (not Testing)
+3. Go to **Sending Domains**
+4. Click **Add Domain** → enter `funkyland.io`
+
+#### Step 2: Add DNS records for domain verification
+
+Mailtrap will show you DNS records to add. Typically:
+
+| Type  | Name                              | Value                          | Purpose |
+|-------|-----------------------------------|--------------------------------|---------|
+| TXT   | `_dmarc.funkyland.io`             | `v=DMARC1; p=none; ...`       | DMARC   |
+| TXT   | `funkyland.io`                    | `v=spf1 include:...`          | SPF     |
+| CNAME | `mta._domainkey.funkyland.io`     | `...mailtrap.io`               | DKIM    |
+| CNAME | `mailtrap._domainkey.funkyland.io`| `...mailtrap.io`               | DKIM    |
+
+> The exact values will be shown in the Mailtrap dashboard. Add them to your DNS provider.
+
+#### Step 3: Verify domain
+
+Go back to Mailtrap → click **Verify All** on each record. It may take a few minutes for DNS to propagate.
+
+#### Step 4: Get API credentials
+
+Once verified:
+
+1. Go to **Sending** → **SMTP/API Settings**
+2. Select **SMTP** tab
+3. You'll see:
+   - Host: `live.smtp.mailtrap.io`
+   - Port: `587`
+   - Username: `api`
+   - Password: `your_api_token_here`
+
+Use these values in the production `.env.local` (Section 11.3).
+
+---
+
+### 11.9 Production Google Sheet
+
+Create a separate sheet for production:
+
+1. Go to [Google Sheets](https://sheets.google.com)
+2. Create a new spreadsheet named **`FEA Submissions`** (no [STAGING] prefix)
+3. Create two tabs with headers exactly matching the staging sheet:
+
+**Tab: `Creator Submissions`**
+
+| Date | Name | Email | Company/Studio | Project Title | Asset Type | Engagement Type | Description | Stage | Capital Profile | Website/Deck | Status | Notes |
+|------|------|-------|----------------|---------------|------------|-----------------|-------------|-------|-----------------|--------------|--------|-------|
+
+**Tab: `Partner Submissions`**
+
+| Date | Name | Email | Organization | Role | Category | Area of Focus | Message | Website | Status | Notes |
+|------|------|-------|--------------|------|----------|---------------|---------|---------|--------|-------|
+
+4. Share the sheet with your service account email (same as staging)
+5. Copy the spreadsheet ID from the URL: `https://docs.google.com/spreadsheets/d/{THIS_PART}/edit`
+6. Use that ID as `GOOGLE_SHEETS_SPREADSHEET_ID` in production `.env.local`
+
+---
+
+### 11.10 CI/CD for Production
+
+The workflow file is already created at `.github/workflows/deploy-production.yml`.
+
+It triggers on every push to the `main` branch and:
+
+1. SSHs into the VPS
+2. Pulls latest code into `/var/www/fea-production`
+3. Runs `npm ci` and `npm run build` (with `NODE_OPTIONS` for memory)
+4. Runs `pm2 reload fea-production` (zero-downtime)
+5. Health checks port 3001 — auto-rollback on failure
+
+**GitHub Secrets are already configured** (same VPS, same secrets from Section 7).
+
+---
+
+### 11.11 Verify production deployment
+
+```bash
+# On the server
+pm2 status                          # 4 processes (2 staging + 2 production)
+curl http://localhost:3001           # Production responds
+cd /var/www/fea-production && git log --oneline -1   # Correct commit
+```
+
+In your browser:
+- `https://funkyland.io` → production site
+- `http://149.248.18.251` → staging site (or `https://staging.funkyland.io`)
+
+---
+
+### 11.12 Production workflow
+
+```bash
+# 1. Work on feature branches
+git checkout -b feat/new-section
+# make changes...
+git add . && git commit -m "feat: add new section"
+git push origin feat/new-section
+
+# 2. Test on staging first
+git checkout staging
+git merge feat/new-section
+git push origin staging
+# → auto-deploys to staging, verify at http://149.248.18.251
+
+# 3. When staging looks good, deploy to production
+git checkout main
+git merge staging
+git push origin main
+# → auto-deploys to production, verify at https://funkyland.io
+```
+
+---
 
 ### End result on the VPS
 
 ```
 /var/www/
-├── fea-staging/        ← staging branch, port 3000, IP access
-└── fea-production/     ← main branch, port 3001, funkyland.io
+├── fea-staging/        ← staging branch, port 3000
+└── fea-production/     ← main branch, port 3001
 
 PM2:
 ├── fea-staging    (2 instances, port 3000)
 └── fea-production (2 instances, port 3001)
 
 Nginx:
-├── fea-staging    → 149.248.18.251:80 → localhost:3000
-└── fea-production → funkyland.io:443  → localhost:3001
+├── fea-staging    → 149.248.18.251:80    → localhost:3000
+│                  → staging.funkyland.io  → localhost:3000
+└── fea-production → funkyland.io:443     → localhost:3001
+
+Environment:
+├── fea-staging/.env.local     → Sandbox Mailtrap + [STAGING] Sheet
+└── fea-production/.env.local  → Production Mailtrap + Production Sheet
 ```
 
 ---
