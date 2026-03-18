@@ -556,7 +556,13 @@ npm run build
 ### 11.5 Start with PM2
 
 ```bash
+cd /var/www/fea-production
 pm2 start ecosystem.production.config.js
+```
+
+> `pm2 startup` was already configured during staging setup (Section 4.5), so auto-start on reboot is already enabled. You just need to save the updated process list so production is included.
+
+```bash
 pm2 save
 ```
 
